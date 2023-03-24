@@ -54,7 +54,10 @@ class SGAT(torch.nn.Module, ABC):
         if attention_list.shape[1] > 1:
             attention_list = torch.sum(attention_list, dim=1)
         e_batch = edge_index[0]
-        node_scores = direction * g_pooling(attention_list, e_batch).view(-1)
+        try:
+            node_scores = direction * g_pooling(attention_list, e_batch).view(-1)
+        except:
+            node_scores = direction * g_pooling(attention_list.unsqueeze(1), e_batch).view(-1)
         return feature_list, node_scores
 
 

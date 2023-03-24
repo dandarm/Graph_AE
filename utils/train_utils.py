@@ -1,6 +1,7 @@
 import torch
 import os
-
+from torch.utils.tensorboard import SummaryWriter
+import datetime
 
 def load_model_result(model, train_set, test_set, device):
     x1, e1, batch1 = None, None, None
@@ -22,7 +23,11 @@ def load_model_result(model, train_set, test_set, device):
 
 
 def train_cp(model, optimizer, device, train_set, valid_set, num_epoch, path, m_name):
-
+    
+    nowstr = datetime.datetime.now().strftime("%d%b_%H-%M-%S")
+    LOG_DIR = f"runs/graph_AE_{nowstr}"
+    writer = SummaryWriter(LOG_DIR)
+    
     for e in range(num_epoch):
         reconstruction_loss = 0
         reconstruction_loss_1 = 0
@@ -35,6 +40,7 @@ def train_cp(model, optimizer, device, train_set, valid_set, num_epoch, path, m_
             loss.backward()
             reconstruction_loss += loss.item()
             optimizer.step()
+            
 
         for data in valid_set:
             data = data.to(device)
@@ -49,6 +55,9 @@ def train_cp(model, optimizer, device, train_set, valid_set, num_epoch, path, m_
         print('Epoch: {:03d}'.format(e))
         print('Training Loss:', reconstruction_loss)
         print('Test Loss:', reconstruction_loss_1)
+        writer.add_scalar("Train Loss", reconstruction_loss, e)
+        writer.add_scalar("Test Loss", reconstruction_loss_1, e)
+    writer.flush()
 
     if not os.path.exists(path):
         os.makedirs(path)

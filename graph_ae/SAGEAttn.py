@@ -65,6 +65,7 @@ class SAGEAttn(MessagePassing):
 
         # propagate_type: (x: OptPairTensor)
         out = self.propagate(edge_index, x=x, x_norm=x_norm, size=None)
+        #print(f"out: {out.shape}, lin: {self.lin_l}")
         out = self.lin_l(out)
 
         alpha = self._alpha
