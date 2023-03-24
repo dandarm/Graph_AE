@@ -59,10 +59,11 @@ def train_cp(model, optimizer, device, train_set, valid_set, num_epoch, path, m_
         writer.add_scalar("Test Loss", reconstruction_loss_1, e)
     writer.flush()
 
-    if not os.path.exists(path):
-        os.makedirs(path)
-    torch.save(model.state_dict(), path + m_name + ".ckpt")
-    print("model saved")
+    if path is not None:
+        if not os.path.exists(path):
+            os.makedirs(path)
+        torch.save(model.state_dict(), path + m_name + ".ckpt")
+        print("model saved")
 
 
 def train_cf(model, optimizer, device, train_set, valid_set, num_epoch, group1, group2):
