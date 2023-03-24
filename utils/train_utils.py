@@ -29,8 +29,10 @@ def train_cp(model, optimizer, device, train_set, valid_set, num_epoch, path, m_
     writer = SummaryWriter(LOG_DIR)
     
     for e in range(num_epoch):
+        print(f"epoca: {e}")
         reconstruction_loss = 0
         reconstruction_loss_1 = 0
+        print(len(train_set))
         for data in train_set:
             optimizer.zero_grad()
             data = data.to(device)
@@ -40,16 +42,15 @@ def train_cp(model, optimizer, device, train_set, valid_set, num_epoch, path, m_
             loss.backward()
             reconstruction_loss += loss.item()
             optimizer.step()
-            
-
-        for data in valid_set:
-            data = data.to(device)
-            z, _, _, _ = model(data)
-            mse_loss = torch.nn.MSELoss()(z, data.x)
-            reconstruction_loss_1 += mse_loss.item()
-
         reconstruction_loss /= len(train_set)
-        reconstruction_loss_1 /= len(valid_set)
+            
+        with torch.no_grad():
+            for data in valid_set:
+                data = data.to(device)
+                z, _, _, _ = model(data)
+                mse_loss = torch.nn.MSELoss()(z, data.x)
+                reconstruction_loss_1 += mse_loss.item()
+            reconstruction_loss_1 /= len(valid_set)
 
         print()
         print('Epoch: {:03d}'.format(e))
